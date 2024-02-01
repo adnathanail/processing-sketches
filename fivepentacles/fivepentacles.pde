@@ -2,61 +2,74 @@ PShape pentagram;
 
 void setup() {
   size(818 / 2, 1419 / 2);
-  pixelDensity(2);
-  translate(width/2,height/2);
+  pixelDensity(2); // For high-res output
+  translate(width/2,height/2); // Work everything relative to the centre of the screen
+
   background(#1d013a);
 
   pentagon_spirals();
 
   pentagrams();
-}
-
-void draw() {
-//translate(width/2,height/2);
+  
+  save("five_of_pentacles.png");
 }
 
 void pentagon_spirals() {
+  // How far above and below the centre line each spiral should appear
   float CENTER_OFFSET = 5 * height/16;
-  
-  pushMatrix();
-  translate(0, -CENTER_OFFSET);
+ 
+  pushMatrix(); // Save current settings so we can reset after drawing the spirals
+
+  // Top spiral
+  translate(0, -CENTER_OFFSET); // Offset
   pentagon_spiral();
   
-  translate(0, CENTER_OFFSET);
-  rotate(TWO_PI/10);
-  translate(CENTER_OFFSET*sin(TWO_PI/10), CENTER_OFFSET*cos(TWO_PI/10));
+  // Bottom spiral
+  translate(0, CENTER_OFFSET); // Back to the middle
+  rotate(TWO_PI/10); // Rotate the bottom spiral
+  translate(CENTER_OFFSET*sin(TWO_PI/10), CENTER_OFFSET*cos(TWO_PI/10)); // Annoying translation because we rotated
   pentagon_spiral();
-  popMatrix();
+
+  popMatrix(); // Reset back to the checkpoint
 }
 
 void pentagon_spiral() {
-  fill(#1b0a65);
+  color c1 = #5b1978;
+  color c2 = #1b0a65;
+
+  fill(c1);
   noStroke();
   strokeWeight(0);
 
   pentagon(25);
-
-  fill(#5b1978);
 
   float av = (cos(TWO_PI / 5) + sin(TWO_PI / 5))/2;
 
   for(int i = 0; i < 5; i++) {
     pushMatrix();
     for(int j = 0; j < 4; j++) {
+      fill(lerpColor(c1, c2, 0.1 + j * 0.1));
       translate(-(1 + av) * 25, 0);
       rotate(TWO_PI/10);
       pentagon(25);
     }
+    
+    fill(lerpColor(c1, c2, 0.5));
 
     rotate(3*TWO_PI/10);
     translate((1 + av) * 25, 0);
     pentagon(25);
+    
+    fill(lerpColor(c1, c2, 0.6));
 
     rotate(-1*TWO_PI/10);
     translate((1 + av) * 25, 0);
     pentagon(25);
 
+    fill(lerpColor(c1, c2, 0.7));
+
     for(int j = 0; j < 2; j++) {
+      fill(lerpColor(c1, c2, 0.8 + j*0.1));
       rotate(TWO_PI/10);
       translate((1 + av) * 25, 0);
       pentagon(25);
@@ -81,33 +94,49 @@ void pentagon(float radius) {
 }
 
 void pentagrams() {
-  rotate(PI/10);
-  
-  pushMatrix();
+  rotate(PI/10); // Make them demonic :))
 
+  pushMatrix(); // Checkpoint
+
+  // Outer circle
   fill(#1b0a65);
   circle(0, 0, 400);
   
+  // Inner circle
   fill(#5b1978);
-  circle(0, 0, 350);
+  circle(0, 0, 375);
 
+  // Define pentagram
   pentagram = createShape();
   pentagram.beginShape();
-  pentagram.fill(#ae2a5f);
   pentagram.stroke(255);
   pentagram.strokeWeight(2);
   for (int i=0; i<10; i+=2){
-    pentagram.vertex(100*cos(i*2*PI/5), 100*sin(i*2*PI/5));
+    pentagram.vertex(115*cos(i*2*PI/5), 115*sin(i*2*PI/5));
   }
   pentagram.endShape(CLOSE);
 
+  // Big pentagram for calculating little pentagrams
   shape(pentagram);
 
+  pushMatrix();
+  // Little pentagram circles
+  fill(#ae2a5f);
+  for(int i = 0; i < pentagram.getVertexCount(); i++) {
+    circle(pentagram.getVertex(i).x, pentagram.getVertex(i).y, 130);
+  }
+  popMatrix();
+  
+  // Big pentagram
+  pentagram.setFill(#ae2a5f);
+  shape(pentagram);
+  
+  // Little pentagrams
   pentagram.setFill(#ff005a);
   scale(0.5);
   for(int i = 0; i < pentagram.getVertexCount(); i++) {
     shape(pentagram, 2*pentagram.getVertex(i).x, 2*pentagram.getVertex(i).y);
   }
-  
+
   popMatrix();
 }
